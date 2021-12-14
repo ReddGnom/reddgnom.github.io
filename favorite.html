@@ -1,0 +1,46 @@
+<html>
+	<head>
+		<title>Forchetta</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="loginValidation.js" type="text/javascript"></script>
+		<link rel="stylesheet" href="dropdown.css" type="text/css">
+	</head>
+	<body>
+		<nav>
+			<div id="nav_wrapper">
+				<ul>
+					<li>
+						<a href="userhome.html">Home</a>
+					</li>               
+					<li>
+						<a href="#">My Accounts</a>
+						<ul>
+							<li>
+								<a href="updateuserdetails.html">Update Account</a>
+							</li>
+							<li>
+								<a href="logout.php">Logout</a>
+							</li>                      
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</nav>
+		<h1>Save your favorite places!</h1>
+		<center>
+			<form onsubmit="return validate()" action="Favorite.php" method="post" class="form" id="form" >
+				<fieldset>
+					<!--<legend>Create New Account</legend>-->
+					<label>Set your favorite city or country!</label>
+					<select method="post" name="locType">
+						<option value='country'>Country</option>
+						<option value='city'>City</option>
+					</select>
+					<input type="text" name="entry" id="entry" size="100" maxlength="100">
+					<br>
+					<input type="submit" value="Submit">
+				</fieldset>
+			</form>
+		</center>
+	</body>
+</html>

@@ -1,0 +1,53 @@
+<html>
+	<head>
+		<title>Forchetta</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<link rel="stylesheet" href="dropdown.css" type="text/css">
+	</head>
+	
+		
+	<body>
+		<nav>
+			<div id="nav_wrapper">
+				<ul>
+					<li>
+						<a href="userhome.html">Home</a>
+					</li>               
+					<li>
+						<a href="#">My Accounts</a>
+						<ul>
+							<li>
+								<a href="updateuserdetails.html">Update Account</a>
+							</li>
+							<li>
+								<a href="logout.php">Logout</a>
+							</li>                      
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</nav>
+		<h1>Leave a review</h1>
+		<center>
+			<form  action="processreview.php" method="post" class="form" id="form" >
+				<fieldset>
+					<!--<legend>Create New Account</legend>-->
+					<label for ="heading">Heading</label>
+						<input type="text" name="heading" id="heading" size="100" maxlength="100"><br>
+					<br>
+					<label for ="body">Review of Visit</label>
+						<input type="text" name="body" id="body" size="100" maxlength="500"><br>
+					<br>
+					<label for="stars">Star Rating</label>
+						1<input type="radio" name="stars" value="1">
+						2<input type="radio" name="stars" value="2">
+						3<input type="radio" name="stars" value="3">
+						4<input type="radio" name="stars" value="4">
+						5<input type="radio" name="stars" value="5">
+					<br>
+					<input type="submit" value="Submit">
+				</fieldset>
+			</form>
+		</center>
+	</body>
+</html>
