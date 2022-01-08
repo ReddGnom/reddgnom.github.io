@@ -54,7 +54,7 @@
 
 <div class="container-fluid mt-5 gx-4 text-white" id="charStats">
     <h3>Enter your character stats</h3>
-    <table class="table table-dark" id="statTable">
+    <table class="table table-dark" id="statTable" oninput="calcStats()">
         <thead>
             <tr>
                 <th scope="col"></th>
@@ -67,32 +67,32 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
+            <tr id="statBonuses">
                 <th scope="row">Race Bonus</th>
-                <td>-</td>
-                <td>+2</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>+1</td>
+                <td id="strBonus">-</td>
+                <td id="dexBonus">+2</td>
+                <td id="conBonus">-</td>
+                <td id="intBonus">-</td>
+                <td id="wisBonus">-</td>
+                <td id="chaBonus">+1</td>
             </tr>
-            <tr id="statsInput">
+            <tr id="statInput">
                 <th scope="row">Input</th>
-                <td><input type="number" min="0" max="7" value=""></td>
-                <td><input type="number" min="0" max="7" value=""></td>
-                <td><input type="number" min="0" max="7" value=""></td>
-                <td><input type="number" min="0" max="7" value=""></td>
-                <td><input type="number" min="0" max="7" value=""></td>
-                <td><input type="number" min="0" max="7" value=""></td>
+                <td><input type="number" min="0" max="7" value="" id="strIn"></td>
+                <td><input type="number" min="0" max="7" value="" id="dexIn"></td>
+                <td><input type="number" min="0" max="7" value="" id="conIn"></td>
+                <td><input type="number" min="0" max="7" value="" id="intIn"></td>
+                <td><input type="number" min="0" max="7" value="" id="wisIn"></td>
+                <td><input type="number" min="0" max="7" value="" id="chaIn"></td>
             </tr>
-            <tr id="statsOutput">
+            <tr id="statOutput">
                 <th scope="row">Final Stats</th>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
+                <td><output name="strOut" for="strIn strBonus"></output></td>
+                <td><output name="dexOut" for="dexIn dexBonus"></output></td>
+                <td><output name="conOut" for="conIn conBonus"></output></td>
+                <td><output name="intOut" for="intIn intBonus"></output></td>
+                <td><output name="wisOut" for="wisIn wisBonus"></output></td>
+                <td><output name="chaOut" for="chaIn chaBonus"></output></td>
             </tr>
         </tbody>
     </table>
