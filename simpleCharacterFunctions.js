@@ -28,16 +28,16 @@ function nyan(cat){
     }
 }
 
-function pointbuy(passInputs) {
+function pointbuy(statInputs) {
     //used to validate the point buy method and calculate the character stats input
     var pointValid = false;
     var pointTotal = 0;
-    let statInputs = new Array(passInputs);
     //checks array for various conditions
     for(i=0; i < statInputs.length; i++){
         //checks if  stat inputs are 6 or 7 and increase the point cost
         if(statInputs[i] ==6 || statInputs[i] ==7 ){
-            statInputs[i] += statInputs[i]-5;
+            pointTotal += statInputs[i]+statInputs[i]-5;
+            continue;
         } else if(statInputs[i]<0 || statInputs[i]>=8){
             //checks if stat inputs are between 0 and 7 highlighting ones that aren't and return function as false
             document.querySelectorAll('#statInput input')[i].style.backgroundColor = '#D0342C';
