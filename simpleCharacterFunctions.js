@@ -32,7 +32,7 @@ function pointbuy(passInputs) {
     //used to validate the point buy method and calculate the character stats input
     var pointValid = false;
     var pointTotal = 0;
-    let statInputs = passInputs;
+    let statInputs = new Array(passInputs);
     //checks array for various conditions
     for(i=0; i < statInputs.length; i++){
         //checks if  stat inputs are 6 or 7 and increase the point cost
