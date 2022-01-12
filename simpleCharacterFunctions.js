@@ -1,6 +1,8 @@
 //global variables declared here
 let races=[]; //used to store JSON races
-let classes=[]; //used to store JSON classes
+//allow specific classes. Used to filter JSON classes and add to drop down list
+let allowedClasses = ['artificer','barbarian','bard','cleric','druid','fighter','monk','paladin','ranger','rogue','sorcerer','warlock','wizard'];
+let playerClass=[]; //used to store JSON classes
 let playerBg=[]; //used to store JSON background and other pc customisation 
 
 //function called to handle page initialisation. 
@@ -10,6 +12,8 @@ function bigchungus(){
     calcStats();
     //add the playable races into a dropdown menu for use
     raceInit();
+    //add playable subclasses into a JSON file for reference
+    classInit(0);
 }
 
 function calcStats() {
@@ -234,4 +238,51 @@ function racialAbilityBonus(race, subrace){
     } catch{}
 
     calcStats();
+}
+
+//function used to retrieve and store subclasses from github JSON file
+function classInit(x){
+    if(x<allowedClasses.length){classPull(x)}
+}
+//functions set up like this so that the classes will be stored in the array AFTER the response comes back and then attempt the next request
+function classPull(x){
+    //add allowed classes as options on dropdown menu
+    let opt = document.createElement('option');
+    opt.value = x;
+    opt.innerText = allowedClasses[x];
+    opt.className = 'text-capitalize';
+    document.getElementById('class').appendChild(opt);
+
+    //send request for class details from JSON file
+    let requestURL = 'https://raw.githubusercontent.com/TheGiddyLimit/TheGiddyLimit.github.io/master/data/class/class-'+allowedClasses[x]+'.json';
+    let request = new XMLHttpRequest();
+    request.open('GET', requestURL);
+    request.responseType = 'json';
+    request.send();
+    request.onload = function(){
+        playerClass[x] = request.response;
+        x++;
+        classInit(x);
+    }
+}
+
+//function used to retrieve allowed subclasses from JSON object
+function subclassLoad(pcClass){
+    //pcClass is the passed value of the class as a number to reference the playerClass JSON object
+    //create an option for applicable subclasses
+    let pC = playerClass[pcClass];
+    let hSubclass = document.getElementById('subclass');
+
+    //clear any previous subclasses
+    hSubclass.innerHTML = '<option value="" selected disabled hidden/>';
+
+    //add any subclass which isn't UA or PlaneShift to the list
+    for(i=0;i<pC.subclass.length;i++){
+        if(pC.subclass[i].source.substring(0,2)=='UA'||pC.subclass[i].classSource.substring(0,2)=='UA'||pC.subclass[i].source.substring(0,2)=='PS'){continue}
+        let opt = document.createElement('option');
+        opt.value = i;
+        opt.innerHTML = pC.subclass[i].name;
+        hSubclass.appendChild(opt);
+    }
+
 }
