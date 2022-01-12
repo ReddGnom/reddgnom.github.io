@@ -175,17 +175,37 @@ function subraceCalc(selectedRace){
         }
     } catch{}
     //add ability score improvement from selected race
-    racialAbilityBonus(playerRace);
+    racialAbilityBonus(selectedRace,'');
 }
 
 //function that takes subrace or race and applies the ability score improvement from them into the stat table
-function racialAbilityBonus(race){
-    //race is the JSON object array of the chosen race or subrace so it should be a matter of going through each entry in the ability field
-    //checks if the race applies a bonus to each stat and then changes the innertext of any defined stats with bonuses
-    try{
-        if(race.ability[0].str>0){document.getElementById('strBonus').innerHTML='+'+race.ability[0].str}else if(race.ability[0].str<0){document.getElementById('strBonus').innerHTML=race.ability[0].str}else{document.getElementById('strBonus').innerHTML='-'};
-    } catch{}
-    try{
+function racialAbilityBonus(race, subrace){
+    //race is the number for JSON object array of the chosen race or subrace
+    //I ran into an issue where subrace changes overwrote the racial bonus so I decided to merge the 2 arrays if subrace is applicable
+    let abilityBonus =['str','dex','con','int','wis','cha'];
+    if(subrace!==''){
+        for(i=0;i<6;i++){
+            abilityBonus[i+6]=(nyan(races.race[race].ability[0][abilityBonus[i]])+nyan(races.race[race].subraces[subrace].ability[0][abilityBonus[i]]))
+        }
+        try{
+            if(races.race[race].subraces[subrace].ability[0].choose!==undefined){
+                //loop through the options available and insert a select element into the relevant table cells
+                for(i=0;i<races.race[race].subraces[subrace].ability[0].choose.from.length;i++){
+                    //create a dropdown for the table cell
+                    document.getElementById(races.race[race].subraces[subrace].ability[0].choose.from[i]+'Bonus').innerHTML = '<select><option selected disabled hidden /><option>0</option><option value=1>+1</option><select>';
+                }
+            }
+        } catch{}
+    } else{
+        for(i=0;i<6;i++){
+            abilityBonus[i+6]= nyan(races.race[race].ability[0][abilityBonus[i]])
+        }
+    }
+    //checks if the race applies a bonus to each stat and then changes the innertext of any defined stats with bonuse
+    for(i=0;i<6;i++){
+        if(abilityBonus[i+6]>0){document.getElementById(abilityBonus[i]+'Bonus').innerHTML='+'+abilityBonus[i+6]}else if(abilityBonus[i+6]<0){document.getElementById(abilityBonus[i]+'Bonus').innerHTML=abilityBonus[i+6]}else{document.getElementById(abilityBonus[i]+'Bonus').innerHTML='-'};
+    } 
+    /*try{
         if(race.ability[0].dex>0){document.getElementById('dexBonus').innerHTML='+'+race.ability[0].dex}else if(race.ability[0].dex<0){document.getElementById('dexBonus').innerHTML=race.ability[0].dex}else{document.getElementById('dexBonus').innerHTML='-'};
     } catch{}
     try{
@@ -199,16 +219,16 @@ function racialAbilityBonus(race){
     } catch{}   
     try{
         if(race.ability[0].cha>0){document.getElementById('chaBonus').innerHTML='+'+race.ability[0].cha}else if(race.ability[0].cha<0){document.getElementById('chaBonus').innerHTML=race.ability[0].cha}else{document.getElementById('chaBonus').innerHTML='-'};
-    } catch{}
+    } catch{} */
 
     //checks if a choice element is present and adds the options stated as select menus in the stat table.
     //user validation of selected stats will be handled in calcStats()
     try{
-        if(race.ability[0].choose!==undefined){
+        if(races.race[race].ability[0].choose!==undefined){
             //loop through the options available and insert a select element into the relevant table cells
-            for(i=0;i<race.ability[0].choose.from.length;i++){
+            for(i=0;i<races.race[race].ability[0].choose.from.length;i++){
                 //create a dropdown for the table cell
-                document.getElementById(race.ability[0].choose.from[i]+'Bonus').innerHTML = '<select><option selected disabled hidden /><option>0</option><option value=1>+1</option><select>';
+                document.getElementById(races.race[race].ability[0].choose.from[i]+'Bonus').innerHTML = '<select><option selected disabled hidden /><option>0</option><option value=1>+1</option><select>';
             }
         }
     } catch{}

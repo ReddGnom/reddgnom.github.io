@@ -42,7 +42,7 @@
             Race<select name="raceMenu" id="raceMenu" onchange="subraceCalc(this.value)">
                 <option value="" selected disabled hidden/>
                 </select>
-            Subrace<select name="subrace" id="subrace">
+            Subrace<select name="subrace" id="subrace" onchange="racialAbilityBonus(raceMenu.value, this.value)">
                 <option value="" selected disabled hidden/>
                 </select>
             </div>
