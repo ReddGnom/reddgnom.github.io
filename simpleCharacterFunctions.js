@@ -4,6 +4,7 @@ let races=[]; //used to store JSON races
 let allowedClasses = ['artificer','barbarian','bard','cleric','druid','fighter','monk','paladin','ranger','rogue','sorcerer','warlock','wizard'];
 let playerClass=[]; //used to store JSON classes
 let playerBg=[]; //used to store JSON background and other pc customisation 
+let raceStatChoice = ''; //used to determine if the chosen race allows for ability score selection
 
 //function called to handle page initialisation. 
 //I was gonna call it something more appropriate but this is what my dwindling sanity produced
@@ -39,6 +40,44 @@ function calcStats() {
         //if point buy is valid then put data in bottom row of table
         for(i=0;i<6;i++){
             document.querySelectorAll('#statOutput output')[i].innerText= 8+nyan(arStatBonuses[i])+arStatInputs[i];
+        }
+    }
+
+    //validates that an allowed number of stat improvements has been made to the racial bonuses
+    //disables any attempts to increase other stats
+    if(raceStatChoice=='race'){
+        //gets racial bonus options
+        let raceOptBonuses = document.querySelectorAll('#statBonuses select');
+        let validTotalBonus = parseInt(races.race[document.getElementById('raceMenu').value].ability[0].choose.count);
+        let numSelectedBonus = 0;
+        //loop through selects and enable all to reset. Increment selection counter
+        for(i=0;i<raceOptBonuses.length;i++){
+            raceOptBonuses[i].disabled = false;
+            raceOptBonuses[i].style.backgroundColor='#C0C0C0';
+            if(raceOptBonuses[i].value==1){numSelectedBonus++}
+        }
+        //disable the non-selected inputs if max is reached
+        if(validTotalBonus==numSelectedBonus){
+            for(i=0;i<raceOptBonuses.length;i++){
+                if(raceOptBonuses[i].value!=1){raceOptBonuses[i].disabled=true; raceOptBonuses[i].style.backgroundColor='#6c757d'}
+            }
+        }
+    } else if(raceStatChoice=='subrace'){
+        //gets racial bonus options
+        let raceOptBonuses = document.querySelectorAll('#statBonuses select');
+        let validTotalBonus = parseInt(races.race[document.getElementById('raceMenu').value].subrace[document.getElementById('subrace')].ability[0].choose.count);
+        let numSelectedBonus = 0;
+        //loop through selects and enable all to reset. Increment selection counter
+        for(i=0;i<raceOptBonuses.length;i++){
+            raceOptBonuses[i].disabled = false;
+            raceOptBonuses[i].style.backgroundColor='#C0C0C0';
+            if(raceOptBonuses[i].value==1){numSelectedBonus++}
+        }
+        //disable the non-selected inputs if max is reached
+        if(validTotalBonus==numSelectedBonus){
+            for(i=0;i<raceOptBonuses.length;i++){
+                if(raceOptBonuses[i].value!=1){raceOptBonuses[i].disabled=true; raceOptBonuses[i].style.backgroundColor='#6c757d'}
+            }
         }
     }
 
@@ -85,13 +124,18 @@ function inputPointCostDisplay(selectTd){
     selectTd.style.backgroundColor = '#C0C0C0';
     //loop through each option in the select
     for(i=0;i<selectTd.children.length;i++){
+        //enable option incase previously disabled
+        selectTd.children[i].disabled = false;
         //if the option is selected remove the point cost display in list
         if(selectTd.children[i].selected){
             selectTd.children[i].innerText = selectTd.children[i].value;
         } else if(selectTd.children[i].value>5) {
             selectTd.children[i].innerText = selectTd.children[i].value + ' ('+UwU((2*selectTd.children[i].value)-5-selectedCost);
+            //disable option if the point cost is too high
+            if(((2*selectTd.children[i].value)-5-selectedCost)>parseInt(document.getElementById('pointsRemaining').innerText)){selectTd.children[i].disabled=true;}
         } else{
             selectTd.children[i].innerText = selectTd.children[i].value + ' ('+UwU(selectTd.children[i].value-selectedCost);
+            if((selectTd.children[i].value-selectedCost)>parseInt(document.getElementById('pointsRemaining').innerText)){selectTd.children[i].disabled=true;}
         }
     }
     return;
@@ -121,12 +165,12 @@ function pointbuy(statInputs) {
     }
     //update the points remaining display
     document.getElementById('pointsRemaining').innerText = 27 - pointTotal;
+    //reset any changed input backgrounds from warning and pretty up innerText of select
+    document.querySelectorAll('#statInput select').forEach(td => inputPointCostDisplay(td));
 
     //check if sum of points spent is <=27
     if(pointTotal<=27){
         pointValid = true;
-        //reset any changed input backgrounds from warning
-        document.querySelectorAll('#statInput select').forEach(td => inputPointCostDisplay(td));
     } else{
         //highlight all fields if the points used are too high
         alert('You have used more than 27 total points. Please reduce some stats.');
@@ -187,6 +231,7 @@ function racialAbilityBonus(race, subrace){
     //race is the number for JSON object array of the chosen race or subrace
     //I ran into an issue where subrace changes overwrote the racial bonus so I decided to merge the 2 arrays if subrace is applicable
     let abilityBonus =['str','dex','con','int','wis','cha'];
+    raceStatChoice = '';
     if(subrace!==''){
         for(i=0;i<6;i++){
             abilityBonus[i+6]=(nyan(races.race[race].ability[0][abilityBonus[i]])+nyan(races.race[race].subraces[subrace].ability[0][abilityBonus[i]]))
@@ -197,6 +242,8 @@ function racialAbilityBonus(race, subrace){
                 for(i=0;i<races.race[race].subraces[subrace].ability[0].choose.from.length;i++){
                     //create a dropdown for the table cell
                     document.getElementById(races.race[race].subraces[subrace].ability[0].choose.from[i]+'Bonus').innerHTML = '<select><option selected disabled hidden /><option>0</option><option value=1>+1</option><select>';
+                    //turns on check if the allowed number of stat improvements have been made 
+                    raceStatChoice = 'subrace';
                 }
             }
         } catch{}
@@ -233,6 +280,7 @@ function racialAbilityBonus(race, subrace){
             for(i=0;i<races.race[race].ability[0].choose.from.length;i++){
                 //create a dropdown for the table cell
                 document.getElementById(races.race[race].ability[0].choose.from[i]+'Bonus').innerHTML = '<select class="form-control w-25 start-50 translate-middle-x position-relative" style="background-color: #C0C0C0; padding: 0.375rem 0.375rem; min-width: 24px;"><option selected disabled hidden /><option>0</option><option value=1>1</option><select>';
+                raceStatChoice = 'race';
             }
         }
     } catch{}
