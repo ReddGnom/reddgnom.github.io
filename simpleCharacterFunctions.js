@@ -232,7 +232,7 @@ function racialAbilityBonus(race, subrace){
             //loop through the options available and insert a select element into the relevant table cells
             for(i=0;i<races.race[race].ability[0].choose.from.length;i++){
                 //create a dropdown for the table cell
-                document.getElementById(races.race[race].ability[0].choose.from[i]+'Bonus').innerHTML = '<select><option selected disabled hidden /><option>0</option><option value=1>+1</option><select>';
+                document.getElementById(races.race[race].ability[0].choose.from[i]+'Bonus').innerHTML = '<select class="form-control w-25 start-50 translate-middle-x position-relative" style="background-color: #C0C0C0; padding: 0.375rem 0.375rem; min-width: 24px;"><option selected disabled hidden /><option>0</option><option value=1>1</option><select>';
             }
         }
     } catch{}
