@@ -211,6 +211,8 @@ function subraceCalc(selectedRace){
 
     //clear all children from subrace options and add in blank default option
     subraceOpt.innerHTML='<option value="" selected disabled hidden/>';
+    subraceOpt.style.backgroundColor ='#6c757d';
+    subraceOpt.disabled = true;
 
     //populate any valid subraces for the selected race into the dropdown list
     try{
@@ -225,6 +227,8 @@ function subraceCalc(selectedRace){
             opt.value = i;
             opt.innerHTML = playerRace.subraces[i].name+ ' ('+ sauce +')';
             subraceOpt.appendChild(opt);
+            subraceOpt.style.backgroundColor='#C0C0C0';
+            subraceOpt.disabled = false;
         }
     } catch{}
     //add ability score improvement from selected race
