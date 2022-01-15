@@ -216,9 +216,14 @@ function subraceCalc(selectedRace){
     try{
         //try for when subraces are undefined and typeof !== will not work
         for(i=0;i<playerRace.subraces.length;i++){
+            let sauce = '';
+            //catch undefined sources which are the PHB sources
+            if(typeof playerRace.subraces[i].source=='undefined'){sauce=playerRace.source}else{sauce=playerRace.subraces[i].source} 
+            //filter out UA content. Try Catch to prevent script failing if source is undefined and therefore PHB
+            try{if(playerRace.subraces[i].source.substring(0,2)=='UA'){continue}}catch{}
             let opt = document.createElement('option');
             opt.value = i;
-            opt.innerHTML = playerRace.subraces[i].name;
+            opt.innerHTML = playerRace.subraces[i].name+ ' ('+ sauce +')';
             subraceOpt.appendChild(opt);
         }
     } catch{}
