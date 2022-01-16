@@ -45,11 +45,11 @@ function calcStats() {
 
     //validates that an allowed number of stat improvements has been made to the racial bonuses
     //disables any attempts to increase other stats
+    let raceOptBonuses = document.querySelectorAll('#statBonuses select');
+    let numSelectedBonus = 0;
     if(raceStatChoice=='race'){
         //gets racial bonus options
-        let raceOptBonuses = document.querySelectorAll('#statBonuses select');
         let validTotalBonus = parseInt(races.race[document.getElementById('raceMenu').value].ability[0].choose.count);
-        let numSelectedBonus = 0;
         //loop through selects and enable all to reset. Increment selection counter
         for(i=0;i<raceOptBonuses.length;i++){
             raceOptBonuses[i].disabled = false;
@@ -64,9 +64,7 @@ function calcStats() {
         }
     } else if(raceStatChoice=='subrace'){
         //gets racial bonus options
-        let raceOptBonuses = document.querySelectorAll('#statBonuses select');
         let validTotalBonus = parseInt(races.race[document.getElementById('raceMenu').value].subrace[document.getElementById('subrace')].ability[0].choose.count);
-        let numSelectedBonus = 0;
         //loop through selects and enable all to reset. Increment selection counter
         for(i=0;i<raceOptBonuses.length;i++){
             raceOptBonuses[i].disabled = false;
@@ -77,6 +75,26 @@ function calcStats() {
         if(validTotalBonus==numSelectedBonus){
             for(i=0;i<raceOptBonuses.length;i++){
                 if(raceOptBonuses[i].value!=1){raceOptBonuses[i].disabled=true; raceOptBonuses[i].style.backgroundColor='#6c757d'}
+            }
+        }
+    } else if(raceStatChoice=='tasha'){
+        //validation for tashas custom lineage points
+        let validTotalBonus = 3;
+        //loop through selects and enable all to reset. Increment selection counter
+        for(i=0;i<raceOptBonuses.length;i++){
+            raceOptBonuses[i].disabled = false;
+            raceOptBonuses[i].style.backgroundColor='#C0C0C0';
+            if(raceOptBonuses[i].value!=0){numSelectedBonus+=raceOptBonuses[i].value; continue}
+            //loop through options and disable selected options
+            for(j=0;j<raceOptBonuses[i].children.length;j++){
+                raceOptBonuses[i].children[j].disabled = false;
+                if(raceOptBonuses[i].children[j].value>(validTotalBonus-numSelectedBonus)){raceOptBonuses[i].children[j].disabled = true;}
+            }
+        }
+        //disable the non-selected inputs if max is reached
+        if(validTotalBonus==numSelectedBonus){
+            for(i=0;i<raceOptBonuses.length;i++){
+                if(raceOptBonuses[i].value<1){raceOptBonuses[i].disabled=true; raceOptBonuses[i].style.backgroundColor='#6c757d'}
             }
         }
     }
@@ -192,8 +210,8 @@ function raceInit(){
     request.onload = function(){
         races = request.response;
         for(i=0;i<races.race.length;i++){
-            //skip any UA content races
-            if(races.race[i].source.substring(0,2)=='UA'||races.race[i].source.substring(0,2)=='PS'){continue}
+            //skip any UA or PlaneShift content races. Also skip Tasha's custom lineage as a race option
+            if(races.race[i].source.substring(0,2)=='UA' || races.race[i].source.substring(0,2)=='PS' || races.race[i].source.substring(0,3)=='TCE'){continue}
             //add races to a dropdown menu
             let opt = document.createElement('option');
             opt.value = i;
@@ -222,6 +240,7 @@ function subraceCalc(selectedRace){
             //catch undefined sources which are the PHB sources
             if(typeof playerRace.subraces[i].source=='undefined'){sauce=playerRace.source}else{sauce=playerRace.subraces[i].source} 
             //filter out UA content. Try Catch to prevent script failing if source is undefined and therefore PHB
+            //Could probably now be replaced with "if(sauce=='UA'){continue}" but oh well
             try{if(playerRace.subraces[i].source.substring(0,2)=='UA'){continue}}catch{}
             let opt = document.createElement('option');
             opt.value = i;
@@ -231,8 +250,15 @@ function subraceCalc(selectedRace){
             subraceOpt.disabled = false;
         }
     } catch{}
-    //add ability score improvement from selected race
-    racialAbilityBonus(selectedRace,'');
+
+    //add option for Tasha's custom lineage rule for +2/+1 to anything. mountain dwarfs can go fuck themselves
+    if(typeof playerRace.ability=='undefined' || raceStatChoice=='tasha'){
+        //ensure tashas rules are enforced for reborn, dhampir, etc. Skip if they are aready applied
+        if(raceStatChoice!='tasha'){tashaLineage(true);}
+    } else {
+        //add ability score improvement from selected race
+        racialAbilityBonus(selectedRace,'');
+    }
 }
 
 //function that takes subrace or race and applies the ability score improvement from them into the stat table
@@ -295,6 +321,22 @@ function racialAbilityBonus(race, subrace){
     } catch{}
 
     calcStats();
+}
+
+//function called when custom lineage checkbox is clicked. Checkbox also called tashaLineage
+function tashaLineage(tashaCheck){
+    //skip reapplying if reborn, dhampir etc. and custom lineage is checked
+    if(raceStatChoice=='tasha' && typeof races.race[document.getElementById('raceMenu').value].ability=='undefined'){return}
+    //tashaCheck is a bool representing if Custom Lineage is checked or not
+    if(tashaCheck){
+        //set the race statchoice to tasha. This is used to skid ability score queries and for select menu validation
+        raceStatChoice='tasha'
+        //get object with race bonuses table cells
+        document.querySelectorAll('#statBonuses td').forEach(td => td.innerHTML = '<select><option selected disabled hidden /><option value=0>0</option><option value=1>+1</option><option value=2>+2</option><select>')
+    } else{
+        raceStatChoice='';
+        racialAbilityBonus(document.getElementById('raceMenu').value, document.getElementById('subrace').value);
+    }
 }
 
 //function used to retrieve and store subclasses from github JSON file

@@ -18,7 +18,7 @@
   
 <div class="container-fluid mt-2 text-center text-white">
   <h1>Simplified D&amp;D 5e Character Creator</h1>
-  <p>Backgrounds and Skill Proficiencies to be added. Feature creep will resume Monday. Currently working on adding in Custom Lineage and therefore fixing Hexblood, Dhampir, Reborn, etc. ability options. Super Secret Exciting Feature to come in the future</p>
+  <p>Tasha's Custom Lineage added. Reborn, Hexblood, and Dhamphir no longer broken. Currently working on Skill Proficiencies. <br> Backgrounds to be added and abilities tab afterwards. Super Secret Exciting Feature to come in the future</p>
 </div>
 
 <div class="container-fluid mt-4 gx-4 text-left text-white" id="charOptions">
@@ -61,8 +61,9 @@
                 <option>Noble</option>
                 <option>Sage</option>
                 </select>
-            </div>
-            </div>          	
+            <div class="form-check form-check-inline"><br><input type="checkbox" name="tashaLineage" class="form-check-input" id="tashaLineage" style="border-color: black;" onclick="tashaLineage(this.checked)"><label class="form-check-label" for="tashaLineage">Use Custom Lineage?</label></div>
+        </div>
+        </div>          	
     </div>
 <!--                Stat Points Table       -->
 <div class="container-fluid mt-4 gx-4 text-white" id="charStats">
