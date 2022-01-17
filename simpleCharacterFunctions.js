@@ -92,6 +92,7 @@ function calcStats() {
                 //loop through options and disable selected options
                 for(j=0;j<raceOptBonuses[i].children.length;j++){
                     raceOptBonuses[i].children[j].disabled = false;
+                    //checks if the options value is not selected and not greater than the remaining points to spend
                     if(raceOptBonuses[i].children[j].value>raceOptBonuses[i].value && raceOptBonuses[i].children[j].value>(3-numSelectedBonus)){raceOptBonuses[i].children[j].disabled = true;}
                 }
             }
@@ -263,6 +264,9 @@ function subraceCalc(selectedRace){
 //function that takes subrace or race and applies the ability score improvement from them into the stat table
 function racialAbilityBonus(race, subrace){
     //race is the number for JSON object array of the chosen race or subrace
+    //skip the function if tasha's custom lineage is enabled
+    if(raceStatChoice=='tasha'){return}
+
     //I ran into an issue where subrace changes overwrote the racial bonus so I decided to merge the 2 arrays if subrace is applicable
     let abilityBonus =['str','dex','con','int','wis','cha'];
     raceStatChoice = '';
@@ -275,7 +279,7 @@ function racialAbilityBonus(race, subrace){
                 //loop through the options available and insert a select element into the relevant table cells
                 for(i=0;i<races.race[race].subraces[subrace].ability[0].choose.from.length;i++){
                     //create a dropdown for the table cell
-                    document.getElementById(races.race[race].subraces[subrace].ability[0].choose.from[i]+'Bonus').innerHTML = '<select><option selected disabled hidden /><option>0</option><option value=1>+1</option><select>';
+                    document.getElementById(races.race[race].subraces[subrace].ability[0].choose.from[i]+'Bonus').innerHTML = '<select class="form-control w-25 start-50 translate-middle-x position-relative" style="background-color: #C0C0C0; padding: 0.375rem 0.375rem; min-width: 24px;><option selected disabled hidden /><option>0</option><option value=1>1</option><select>';
                     //turns on check if the allowed number of stat improvements have been made 
                     raceStatChoice = 'subrace';
                 }
@@ -325,13 +329,21 @@ function racialAbilityBonus(race, subrace){
 //function called when custom lineage checkbox is clicked. Checkbox also called tashaLineage
 function tashaLineage(tashaCheck){
     //skip reapplying if reborn, dhampir etc. and custom lineage is checked
-    if(raceStatChoice=='tasha' && typeof races.race[document.getElementById('raceMenu').value].ability=='undefined'){return}
+    try {
+        //try catch used in instance of races.race[x] being undefined and locking the lineage select menus in place until a race is defined and custom lineage toggled on and off
+        if(raceStatChoice=='tasha' && typeof races.race[document.getElementById('raceMenu').value].ability=='undefined'){
+            return
+        }
+    } catch{
+        raceStatChoice='';
+        document.querySelectorAll('#statBonuses td').forEach(td => td.innerHTML='-');
+    }
     //tashaCheck is a bool representing if Custom Lineage is checked or not
     if(tashaCheck){
         //set the race statchoice to tasha. This is used to skid ability score queries and for select menu validation
         raceStatChoice='tasha'
         //get object with race bonuses table cells
-        document.querySelectorAll('#statBonuses td').forEach(td => td.innerHTML = '<select><option selected disabled hidden /><option>0</option><option value=1>+1</option><option value=2>+2</option><select>')
+        document.querySelectorAll('#statBonuses td').forEach(td => td.innerHTML = '<select class="form-control w-25 start-50 translate-middle-x position-relative" style="background-color: #C0C0C0; padding: 0.375rem 0.375rem; min-width: 24px;"><option selected disabled hidden /><option>0</option><option value=1>1</option><option value=2>2</option><select>')
     } else{
         raceStatChoice='';
         racialAbilityBonus(document.getElementById('raceMenu').value, document.getElementById('subrace').value);
