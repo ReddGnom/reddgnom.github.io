@@ -79,22 +79,21 @@ function calcStats() {
         }
     } else if(raceStatChoice=='tasha'){
         //validation for tashas custom lineage points
-        let validTotalBonus = 3;
         //loop through selects and enable all to reset. Increment selection counter
         for(i=0;i<raceOptBonuses.length;i++){
             raceOptBonuses[i].disabled = false;
             raceOptBonuses[i].style.backgroundColor='#C0C0C0';
-            if(raceOptBonuses[i].value!=0){numSelectedBonus+=raceOptBonuses[i].value; continue}
-            //loop through options and disable selected options
-            for(j=0;j<raceOptBonuses[i].children.length;j++){
-                raceOptBonuses[i].children[j].disabled = false;
-                if(raceOptBonuses[i].children[j].value>(validTotalBonus-numSelectedBonus)){raceOptBonuses[i].children[j].disabled = true;}
-            }
+            if(raceOptBonuses[i].value!=0){numSelectedBonus+=raceOptBonuses[i].value;}
         }
         //disable the non-selected inputs if max is reached
-        if(validTotalBonus==numSelectedBonus){
+        if(numSelectedBonus!=0){
             for(i=0;i<raceOptBonuses.length;i++){
-                if(raceOptBonuses[i].value<1){raceOptBonuses[i].disabled=true; raceOptBonuses[i].style.backgroundColor='#6c757d'}
+                if(raceOptBonuses[i].value<1 && numSelectedBonus==3){raceOptBonuses[i].disabled=true; raceOptBonuses[i].style.backgroundColor='#6c757d'}
+                //loop through options and disable selected options
+                for(j=0;j<raceOptBonuses[i].children.length;j++){
+                    raceOptBonuses[i].children[j].disabled = false;
+                    if(raceOptBonuses[i].children[j].value>raceOptBonuses[i].value && raceOptBonuses[i].children[j].value>(3-numSelectedBonus)){raceOptBonuses[i].children[j].disabled = true;}
+                }
             }
         }
     }
@@ -332,7 +331,7 @@ function tashaLineage(tashaCheck){
         //set the race statchoice to tasha. This is used to skid ability score queries and for select menu validation
         raceStatChoice='tasha'
         //get object with race bonuses table cells
-        document.querySelectorAll('#statBonuses td').forEach(td => td.innerHTML = '<select><option selected disabled hidden /><option value=0>0</option><option value=1>+1</option><option value=2>+2</option><select>')
+        document.querySelectorAll('#statBonuses td').forEach(td => td.innerHTML = '<select><option selected disabled hidden /><option>0</option><option value=1>+1</option><option value=2>+2</option><select>')
     } else{
         raceStatChoice='';
         racialAbilityBonus(document.getElementById('raceMenu').value, document.getElementById('subrace').value);
