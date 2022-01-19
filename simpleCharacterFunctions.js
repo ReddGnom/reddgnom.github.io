@@ -54,27 +54,27 @@ function calcStats() {
         for(i=0;i<raceOptBonuses.length;i++){
             raceOptBonuses[i].disabled = false;
             raceOptBonuses[i].style.backgroundColor='#C0C0C0';
-            if(raceOptBonuses[i].value==1){numSelectedBonus++}
+            if(raceOptBonuses[i].value>0){numSelectedBonus++}
         }
         //disable the non-selected inputs if max is reached
         if(validTotalBonus==numSelectedBonus){
             for(i=0;i<raceOptBonuses.length;i++){
-                if(raceOptBonuses[i].value!=1){raceOptBonuses[i].disabled=true; raceOptBonuses[i].style.backgroundColor='#6c757d'}
+                if(raceOptBonuses[i].value<1){raceOptBonuses[i].disabled=true; raceOptBonuses[i].style.backgroundColor='#6c757d'}
             }
         }
     } else if(raceStatChoice=='subrace'){
         //gets racial bonus options
-        let validTotalBonus = parseInt(races.race[document.getElementById('raceMenu').value].subrace[document.getElementById('subrace')].ability[0].choose.count);
+        let validTotalBonus = parseInt(races.race[document.getElementById('raceMenu').value].subraces[document.getElementById('subrace').value].ability[0].choose.count);
         //loop through selects and enable all to reset. Increment selection counter
         for(i=0;i<raceOptBonuses.length;i++){
             raceOptBonuses[i].disabled = false;
             raceOptBonuses[i].style.backgroundColor='#C0C0C0';
-            if(raceOptBonuses[i].value==1){numSelectedBonus++}
+            if(raceOptBonuses[i].value>0){numSelectedBonus++}
         }
         //disable the non-selected inputs if max is reached
         if(validTotalBonus==numSelectedBonus){
             for(i=0;i<raceOptBonuses.length;i++){
-                if(raceOptBonuses[i].value!=1){raceOptBonuses[i].disabled=true; raceOptBonuses[i].style.backgroundColor='#6c757d'}
+                if(raceOptBonuses[i].value<1){raceOptBonuses[i].disabled=true; raceOptBonuses[i].style.backgroundColor='#6c757d'}
             }
         }
     } else if(raceStatChoice=='tasha'){
@@ -212,6 +212,8 @@ function raceInit(){
         for(i=0;i<races.race.length;i++){
             //skip any UA or PlaneShift content races. Also skip Tasha's custom lineage as a race option
             if(races.race[i].source.substring(0,2)=='UA' || races.race[i].source.substring(0,2)=='PS' || races.race[i].source.substring(0,3)=='TCE'){continue}
+            //tenative fix for Tiefling race to subrace conversion due to undefined error and race and subrace stats
+            if(races.race[i].name=='Tiefling'){races.race[i].subraces[0].name='Standard'}
             //add races to a dropdown menu
             let opt = document.createElement('option');
             opt.value = i;
@@ -272,19 +274,26 @@ function racialAbilityBonus(race, subrace){
     raceStatChoice = '';
     if(subrace!==''){
         for(i=0;i<6;i++){
-            abilityBonus[i+6]=(nyan(races.race[race].ability[0][abilityBonus[i]])+nyan(races.race[race].subraces[subrace].ability[0][abilityBonus[i]]))
+            //try catch for undefined error on races with undefined subrace ability bonuses
+            try{abilityBonus[i+6]=(nyan(races.race[race].ability[0][abilityBonus[i]])+nyan(races.race[race].subraces[subrace].ability[0][abilityBonus[i]]))}catch{racialAbilityBonus(document.getElementById('raceMenu').value,''); return}
         }
-        try{
-            if(races.race[race].subraces[subrace].ability[0].choose!==undefined){
-                //loop through the options available and insert a select element into the relevant table cells
-                for(i=0;i<races.race[race].subraces[subrace].ability[0].choose.from.length;i++){
-                    //create a dropdown for the table cell
-                    document.getElementById(races.race[race].subraces[subrace].ability[0].choose.from[i]+'Bonus').innerHTML = '<select class="form-control w-25 start-50 translate-middle-x position-relative" style="background-color: #C0C0C0; padding: 0.375rem 0.375rem; min-width: 24px;><option selected disabled hidden /><option>0</option><option value=1>1</option><select>';
-                    //turns on check if the allowed number of stat improvements have been made 
-                    raceStatChoice = 'subrace';
-                }
+        //exception for tiefling subrace point distribution due to single race to multiple subraces in later editions while maintaining original distribution. 
+        //compares abilities set above and overwrites any ability higher than that set by the subrace. Probably not the best way to do it but it should work better than my last solution
+        var subraceOverwrite = false;
+        for(i=0;i<6;i++){
+            if(subraceOverwrite){
+                try{
+                    abilityBonus[i+6]=races.race[race].subraces[subrace].ability[0][abilityBonus[i]];
+                } catch{} 
+                continue;
             }
-        } catch{}
+            try{
+                if(typeof races.race[race].subraces[subrace].ability[0][abilityBonus[i]] != 'undefined' && abilityBonus[i+6]>races.race[race].subraces[subrace].ability[0][abilityBonus[i]]){
+                    i=-1;
+                    subraceOverwrite = true;
+                }
+            }catch{}
+        }
     } else{
         for(i=0;i<6;i++){
             abilityBonus[i+6]= nyan(races.race[race].ability[0][abilityBonus[i]])
@@ -314,11 +323,33 @@ function racialAbilityBonus(race, subrace){
     //user validation of selected stats will be handled in calcStats()
     try{
         if(races.race[race].ability[0].choose!==undefined){
-            //loop through the options available and insert a select element into the relevant table cells
+            var amtBonus = 1;
+            // default to choice amount being 1 but allow for option being 2
+            try{
+                amtBonus = races.race[race].subraces[subrace].ability[0].choose.amount;
+            } catch{}
+            //loop through the options available and insert a select element into the relevant table cellsvar amtBonus = 1
             for(i=0;i<races.race[race].ability[0].choose.from.length;i++){
                 //create a dropdown for the table cell
-                document.getElementById(races.race[race].ability[0].choose.from[i]+'Bonus').innerHTML = '<select class="form-control w-25 start-50 translate-middle-x position-relative" style="background-color: #C0C0C0; padding: 0.375rem 0.375rem; min-width: 24px;"><option selected disabled hidden /><option>0</option><option value=1>1</option><select>';
+                document.getElementById(races.race[race].ability[0].choose.from[i]+'Bonus').innerHTML = '<select class="form-control w-25 start-50 translate-middle-x position-relative" style="background-color: #C0C0C0; padding: 0.375rem 0.375rem; min-width: 24px;"><option selected disabled hidden /><option>0</option><option value='+amtBonus+'>'+amtBonus+'</option></select>';
                 raceStatChoice = 'race';
+            }
+        }
+    } catch{}
+    //Checks for a choice in subraces ability scores
+    try{
+        if(races.race[race].subraces[subrace].ability[0].choose!==undefined){
+            var amtBonus = 1;
+            // default to choice amount being 1 but allow for option being 2
+            try{
+                amtBonus = races.race[race].subraces[subrace].ability[0].choose.amount;
+            } catch{}
+            //loop through the options available and insert a select element into the relevant table cells
+            for(i=0;i<races.race[race].subraces[subrace].ability[0].choose.from.length;i++){
+                //create a dropdown for the table cell
+                document.getElementById(races.race[race].subraces[subrace].ability[0].choose.from[i]+'Bonus').innerHTML = '<select class="form-control w-25 start-50 translate-middle-x position-relative" style="background-color: #C0C0C0; padding: 0.375rem 0.375rem; min-width: 24px;"><option selected disabled hidden /><option>0</option><option value='+amtBonus+'>'+amtBonus+'</option></select>';
+                //turns on check if the allowed number of stat improvements have been made 
+                raceStatChoice = 'subrace';
             }
         }
     } catch{}
